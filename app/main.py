@@ -22,11 +22,11 @@ def get_db():
         db.close()
 
 # 사용자 추가 API
-@app.post("/users/")
+@app.post("/add-user/")
 def add_user(user: UserCreate, db: Session = Depends(get_db)):
     return create_user(db, user)
 
 # 모든 사용자 조회 API
-@app.get("/users/")
+@app.get("/get-users/")
 def read_users(db: Session = Depends(get_db)):
     return get_users(db)
