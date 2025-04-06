@@ -3,7 +3,8 @@ from app.database.connection import Base
 
 class User(Base):
     __tablename__ = "users"
+    __table_args__ = {"extend_existing": True}
 
-    id = Column(Integer, primary_key=True, index=True, autoincrement=True)
-    name = Column(String(100), nullable=False)
+    user_id = Column(String, primary_key=True)
+    name = Column(String(100), nullable=False, index=True)
     password = Column(String(255), nullable=False)

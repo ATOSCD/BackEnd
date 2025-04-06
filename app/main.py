@@ -1,7 +1,7 @@
 from fastapi import FastAPI, Depends
 from sqlalchemy.orm import Session
 from .database.connection import SessionLocal, engine, Base
-from .models.user import User
+from .models.User import User
 from .crud.user import create_user, get_users
 from .config import SWAGGER_HEADERS, swagger_ui_parameters
 
