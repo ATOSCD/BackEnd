@@ -1,4 +1,4 @@
-class UserCreation():
+class UserCreate():
     user_id: str 
     name: str
     password: str
