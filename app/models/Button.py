@@ -5,7 +5,7 @@ from datetime import datetime
 class ButtonLog(Base):
     __tablename__ = "botton_log"
 
-    user_id = Column(String, nullable=False)
+    user_id = Column(String(32), nullable=False)
     button_id = Column(Integer, nullable=False)
     date = Column(DateTime, nullable=False, default=datetime.now)
 
