@@ -1,4 +1,6 @@
-from fastapi import FastAPI, Depends
+from fastapi import FastAPI, Request, Depends
+from fastapi.responses import HTMLResponse
+from fastapi.templating import Jinja2Templates
 from sqlalchemy.orm import Session
 from .database.connection import SessionLocal, engine, Base
 from .models.User import User
@@ -14,6 +16,8 @@ Base.metadata.create_all(bind=engine)
 
 app = FastAPI(swagger_ui_parameters=swagger_ui_parameters, **SWAGGER_HEADERS)
 
+templates = Jinja2Templates(directory="app/templates")
+
 # 의존성 주입: DB 세션 가져오기
 def get_db():
     db = SessionLocal()
@@ -23,9 +27,9 @@ def get_db():
         db.close()
 
 # FastAPI 기본 경로
-@app.get("/")
-def read_root():
-    return {"Hello": "World"}
+@app.get("/", response_class=HTMLResponse)
+def read_root(request: Request):
+    return templates.TemplateResponse("root.html", {"request": request})
 
 # 사용자 추가 API
 @app.post("/add-user/", description="사용자 추가", tags=["User"])

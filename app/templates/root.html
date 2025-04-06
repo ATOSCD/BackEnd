@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Project Overview</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f4f4f9;
+            color: #333;
+            line-height: 1.5;
+        }
+        header {
+            background-color: #4CAF50;
+            color: white;
+            padding: 1rem 2rem;
+            max-width: 1000px;
+            margin: 0 auto;
+            text-align: center;
+        }
+        main {
+            padding: 2rem;
+            max-width: 1000px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+        h1, h2 {
+            color: #4CAF50;
+        }
+        footer {
+            text-align: center;
+            padding: 1rem;
+            margin-top: 2rem;
+            background-color: #f4f4f9;
+            color: #777;
+        }
+        a {
+            color: #4CAF50;
+            text-decoration: none;
+        }
+        a:hover {
+            text-decoration: underline;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <h1 style="color: rgb(255, 255, 255);">중앙대학교 캡스톤디자인(2)</h1>
+    </header>
+    <main>
+        <h2>Team Members</h2>
+        <ul>
+            <li>김지찬 (BE/AI)  <a href="https://github.com/ippinex">GitHub</a></li>
+            <li>이기원 (FE/AI)  <a href="https://github.com/KEIVEE">GitHub</a></li>
+            <li>이상훈 (FE/AI)  <a href="https://github.com/gitbatryan">GitHub</a></li>
+        </ul>
+        <h2>About This Project</h2>
+        <p>
+            사지마비 환자를 위한 AR 기기 기반 IoT 제어 및 소통 서비스 입니다.
+        </p>
+        <p>
+            사지마비 환자의 경우 감금증후군, 마비말 장애가 동반되면 말, 발음을 할 수 없습니다.
+            이 문제점에서 착안하여 마이크로 소프트의 Hololen2의 Eye tracking을 이용한 Home IoT 제어, 호출, 소통 서비스를 개발하였습니다.
+            Object detection을 활용하여 환자가 눈으로 바라보는 사물(e.g. 전등, TV ...)의 IoT 를 제어하거나 보호자에게 사물에 대한 호출을 할 수 있습니다. 
+            또한 Eye tracking 키보드를 이용하여 보호자와의 채팅을 가능하게 합니다. 환자의 편의성을 위해 AI 기반 자동완성, 오타 수정을 제공합니다.
+            보호자의 경우 하루 13~15 시간을 간병에 소요하므로 보호자를 위한 앱 또한 만들어 보호자의 휴식을 제공하고 보호자와 환자와의 원활한 소통을 가능하게 하였습니다.
+        </p>
+        <h2>Features</h2>
+        <ul>
+            <li>Unity를 활용한 AR 개발</li>
+            <li>YOLO를 활용한 Object Detection</li>
+            <li>FastAPI, MySQL를 활용한 웹서버 개발</li>
+        </ul>
+        <h2>APIs</h2>
+        <p>
+            <a href="/docs">API Documentation</a> (Swagger UI).
+        </p>
+        <h2>GitHub</h2>
+        <p>
+            <a href="https://github.com/ATOSCD">Visit GitHub</a>
+        </p>
+    </main>
+    <footer>
+        <p>&copy; 2025 Capstone Project Team. All rights reserved.</p>
+    </footer>
+</body>
+</html>
