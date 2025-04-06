@@ -1,4 +1,5 @@
 from sqlalchemy.orm import Session
+from sqlalchemy.sql import func
 from app.models.User import User
 from datetime import datetime, timedelta
 from sqlalchemy import func, desc
@@ -9,11 +10,10 @@ def add_button_log(db: Session, button_log: ButtonLogAdd):
     log = ButtonLog(
         user_id=button_log.user_id,
         button_id=button_log.button_id,
-        date=datetime.now()
+        date=func.now()
     )
     db.add(log)
     db.commit()
-    db.refresh(log)
     return button_log
 
 

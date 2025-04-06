@@ -2,10 +2,11 @@ from fastapi import FastAPI, Depends
 from sqlalchemy.orm import Session
 from .database.connection import SessionLocal, engine, Base
 from .models.User import User
-from .crud.user import create_user, get_users
+from .crud.user import *
+from .crud.button import *
 from .config import SWAGGER_HEADERS, swagger_ui_parameters
-from .schemas.user import UserCreate
-from .schemas.button import ButtonLogAdd, ButtonRecommend
+from .schemas.user import *
+from .schemas.button import *
 
 
 # DB 테이블 생성 (최초 실행 시 필요)
@@ -30,3 +31,13 @@ def add_user(user: UserCreate, db: Session = Depends(get_db)):
 @app.get("/get-users/")
 def read_users(db: Session = Depends(get_db)):
     return get_users(db)
+
+# 버튼 로그 추가 API
+@app.post("/add-button-log/")
+def button_log_add(button_log: ButtonLogAdd, db: Session = Depends(get_db)):
+    return add_button_log(db, button_log)
+
+# 버튼 추천 API
+@app.post("/recommend-button/")
+def button_recommend(recommend: ButtonRecommend, db: Session = Depends(get_db)):
+    return recommend_buttons(db, recommend)
