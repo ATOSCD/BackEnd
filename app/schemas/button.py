@@ -1,6 +1,8 @@
-def ButtonLogAdd():
+from pydantic import BaseModel
+
+class ButtonLogAdd(BaseModel):
     user_id: str
     button_id: int
 
-def ButtonRecommend():
+class ButtonRecommend(BaseModel):
     user_id: str
