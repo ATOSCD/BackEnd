@@ -28,7 +28,7 @@ def get_db():
         db.close()
 
 # FastAPI 기본 경로
-@app.get("/", response_class=HTMLResponse)
+@app.get("/", response_class=HTMLResponse, description="서버 기본 경로", tags=["Root"])
 def read_root(request: Request):
     return templates.TemplateResponse("root.html", {"request": request})
 
@@ -68,6 +68,6 @@ async def broadcast_message(message: str, sender: WebSocket):
     for client in connected_clients:
         await client.send_text(message)
 
-@app.get("/ws/chat-test", response_class=HTMLResponse)
+@app.get("/ws/chat-test", response_class=HTMLResponse, description="채팅 테스트", tags=["Chat"])
 def chat_test(request: Request):
     return templates.TemplateResponse("chat_test.html", {"request": request})
