@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>WebSocket Chat</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+        }
+        #messages {
+            border: 1px solid #ccc;
+            padding: 10px;
+            height: 300px;
+            overflow-y: scroll;
+            margin-bottom: 10px;
+        }
+        #messageInput {
+            width: calc(100% - 100px);
+            padding: 10px;
+        }
+        #sendButton {
+            padding: 10px;
+        }
+    </style>
+</head>
+<body>
+    <h1>WebSocket Chat</h1>
+    <div id="messages"></div>
+    <input type="text" id="messageInput" placeholder="Type your message here..." />
+    <button id="sendButton">Send</button>
+
+    <script>
+        const ws = new WebSocket("ws://192.168.1.45:8000/ws/chat"); // WebSocket 서버 주소
+        const messagesDiv = document.getElementById("messages");
+        const messageInput = document.getElementById("messageInput");
+        const sendButton = document.getElementById("sendButton");
+
+        // WebSocket 연결이 열렸을 때
+        ws.onopen = () => {
+            const message = document.createElement("div");
+            message.textContent = "Connected to the chat server.";
+            messagesDiv.appendChild(message);
+        };
+
+        // WebSocket 메시지를 수신했을 때
+        ws.onmessage = (event) => {
+            const message = document.createElement("div");
+            message.textContent = event.data;
+            messagesDiv.appendChild(message);
+            messagesDiv.scrollTop = messagesDiv.scrollHeight; // 스크롤을 맨 아래로
+        };
+
+        // WebSocket 연결이 닫혔을 때
+        ws.onclose = () => {
+            const message = document.createElement("div");
+            message.textContent = "Disconnected from the chat server.";
+            messagesDiv.appendChild(message);
+        };
+
+        // 메시지 전송 버튼 클릭 이벤트
+        sendButton.addEventListener("click", () => {
+            const message = messageInput.value;
+            if (message) {
+                ws.send(message); // WebSocket 서버로 메시지 전송
+                messageInput.value = ""; // 입력 필드 초기화
+            }
+        });
+
+        // Enter 키로 메시지 전송
+        messageInput.addEventListener("keypress", (event) => {
+            if (event.key === "Enter") {
+                sendButton.click();
+            }
+        });
+    </script>
+</body>
+</html>

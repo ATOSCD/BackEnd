@@ -1,4 +1,4 @@
-from fastapi import FastAPI, Request, Depends
+from fastapi import FastAPI, Request, Depends, WebSocket, WebSocketDisconnect
 from fastapi.responses import HTMLResponse
 from fastapi.templating import Jinja2Templates
 from sqlalchemy.orm import Session
@@ -9,6 +9,7 @@ from .crud.button import *
 from .config import SWAGGER_HEADERS, swagger_ui_parameters
 from .schemas.user import *
 from .schemas.button import *
+from typing import List
 
 
 # DB 테이블 생성 (최초 실행 시 필요)
@@ -50,3 +51,23 @@ def button_log_add(button_log: ButtonLogAdd, db: Session = Depends(get_db)):
 @app.post("/recommend-button/", description="버튼 추천 (최근 1주일 가장 많은 순서대로 리턴)", tags=["Button"])
 def button_recommend(recommend: ButtonRecommend, db: Session = Depends(get_db)):
     return recommend_buttons(db, recommend)
+
+connected_clients: List[WebSocket] = []
+@app.websocket("/ws/chat")
+async def chat_websocket(websocket: WebSocket):
+    await websocket.accept()
+    connected_clients.append(websocket)
+    try:
+        while True:
+            message = await websocket.receive_text()
+            await broadcast_message(message, websocket)
+    except WebSocketDisconnect:
+        connected_clients.remove(websocket)
+
+async def broadcast_message(message: str, sender: WebSocket):
+    for client in connected_clients:
+        await client.send_text(message)
+
+@app.get("/ws/chat-test", response_class=HTMLResponse)
+def chat_test(request: Request):
+    return templates.TemplateResponse("chat_test.html", {"request": request})
