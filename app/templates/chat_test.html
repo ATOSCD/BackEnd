@@ -23,41 +23,79 @@
         #sendButton {
             padding: 10px;
         }
+        #userIdInput {
+            margin-bottom: 10px;
+            padding: 10px;
+            width: calc(100% - 100px);
+        }
+        #connectButton {
+            padding: 10px;
+        }
     </style>
 </head>
 <body>
     <h1>WebSocket Chat</h1>
-    <div id="messages"></div>
-    <input type="text" id="messageInput" placeholder="Type your message here..." />
-    <button id="sendButton">Send</button>
+    <input type="text" id="userIdInput" placeholder="Enter your user ID" />
+    <button id="connectButton">Connect</button>
+    <div id="messages" style="display: none;"></div>
+    <input type="text" id="messageInput" placeholder="Type your message here..." style="display: none;" />
+    <button id="sendButton" style="display: none;">Send</button>
 
     <script>
-        const ws = new WebSocket("ws://192.168.1.45:8000/ws/chat"); // WebSocket 서버 주소
+        let ws; // WebSocket 객체
+        const userIdInput = document.getElementById("userIdInput");
+        const connectButton = document.getElementById("connectButton");
         const messagesDiv = document.getElementById("messages");
         const messageInput = document.getElementById("messageInput");
         const sendButton = document.getElementById("sendButton");
 
-        // WebSocket 연결이 열렸을 때
-        ws.onopen = () => {
-            const message = document.createElement("div");
-            message.textContent = "Connected to the chat server.";
-            messagesDiv.appendChild(message);
-        };
+        // WebSocket 연결 버튼 클릭 이벤트
+        connectButton.addEventListener("click", () => {
+            const userId = userIdInput.value.trim();
+            if (!userId) {
+                alert("Please enter a valid user ID.");
+                return;
+            }
 
-        // WebSocket 메시지를 수신했을 때
-        ws.onmessage = (event) => {
-            const message = document.createElement("div");
-            message.textContent = event.data;
-            messagesDiv.appendChild(message);
-            messagesDiv.scrollTop = messagesDiv.scrollHeight; // 스크롤을 맨 아래로
-        };
+            // WebSocket 연결 시작
+            ws = new WebSocket(`ws://192.168.1.45:8000/ws/chat?user_id=${userId}`);
+            
+            // WebSocket 연결이 열렸을 때
+            ws.onopen = () => {
+                const message = document.createElement("div");
+                message.textContent = "Connected to the chat server.";
+                messagesDiv.appendChild(message);
 
-        // WebSocket 연결이 닫혔을 때
-        ws.onclose = () => {
-            const message = document.createElement("div");
-            message.textContent = "Disconnected from the chat server.";
-            messagesDiv.appendChild(message);
-        };
+                // UI 업데이트
+                userIdInput.style.display = "none";
+                connectButton.style.display = "none";
+                messagesDiv.style.display = "block";
+                messageInput.style.display = "inline-block";
+                sendButton.style.display = "inline-block";
+            };
+
+            // WebSocket 메시지를 수신했을 때
+            ws.onmessage = (event) => {
+                const message = document.createElement("div");
+                message.textContent = event.data;
+                messagesDiv.appendChild(message);
+                messagesDiv.scrollTop = messagesDiv.scrollHeight; // 스크롤을 맨 아래로
+            };
+
+            // WebSocket 연결이 닫혔을 때
+            ws.onclose = () => {
+                const message = document.createElement("div");
+                message.textContent = "Disconnected from the chat server.";
+                messagesDiv.appendChild(message);
+
+                // UI 초기화
+                userIdInput.style.display = "inline-block";
+                connectButton.style.display = "inline-block";
+                messagesDiv.style.display = "none";
+                messageInput.style.display = "none";
+                sendButton.style.display = "none";
+            };
+        });
 
         // 메시지 전송 버튼 클릭 이벤트
         sendButton.addEventListener("click", () => {

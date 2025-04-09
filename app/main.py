@@ -4,12 +4,16 @@ from fastapi.templating import Jinja2Templates
 from sqlalchemy.orm import Session
 from .database.connection import SessionLocal, engine, Base
 from .models.User import User
+from .models.Chat import Message
 from .crud.user import *
 from .crud.button import *
 from .config import SWAGGER_HEADERS, swagger_ui_parameters
 from .schemas.user import *
 from .schemas.button import *
+from .schemas.chat import *
+from .chat.save_chat import save_message_to_db
 from typing import List
+
 
 
 # DB 테이블 생성 (최초 실행 시 필요)
@@ -55,17 +59,23 @@ def button_recommend(recommend: ButtonRecommend, db: Session = Depends(get_db)):
 # 웹소켓 채팅 API
 connected_clients: List[WebSocket] = []
 @app.websocket("/ws/chat")
-async def chat_websocket(websocket: WebSocket):
+async def chat_websocket(websocket: WebSocket, db: Session = Depends(get_db)):
+    user_id = websocket.query_params.get("user_id")
+    if not user_id:
+        await websocket.close(code=1008, reason="user_id is required")
+        return
+    
     await websocket.accept()
     connected_clients.append(websocket)
     try:
         while True:
             message = await websocket.receive_text()
-            await broadcast_message(message, websocket)
+            save_message_to_db(db, user_id=user_id, content=message)
+            await broadcast_message(message)
     except WebSocketDisconnect:
         connected_clients.remove(websocket)
 
-async def broadcast_message(message: str, sender: WebSocket):
+async def broadcast_message(message: str):
     for client in connected_clients:
         await client.send_text(message)
 
@@ -73,3 +83,9 @@ async def broadcast_message(message: str, sender: WebSocket):
 @app.get("/ws/chat-test", response_class=HTMLResponse, description="채팅 테스트", tags=["Chat"])
 def chat_test(request: Request):
     return templates.TemplateResponse("chat_test.html", {"request": request})
+
+# 채팅 조회 API
+@app.get("/get-messages/{user_id}/", description="채팅방 메시지 조회", tags=["Chat"])
+def get_messages(user_id: str, db: Session = Depends(get_db)):
+    messages = db.query(Message).filter(Message.user_id == user_id).order_by(Message.created_at).all()
+    return messages
