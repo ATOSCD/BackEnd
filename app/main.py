@@ -2,6 +2,7 @@ from fastapi import FastAPI, Request, Depends, WebSocket, WebSocketDisconnect
 from fastapi.responses import HTMLResponse
 from fastapi.templating import Jinja2Templates
 from sqlalchemy.orm import Session
+from sqlalchemy import or_
 from .database.connection import SessionLocal, engine, Base
 from .models.User import User
 from .models.Chat import Message
@@ -46,6 +47,17 @@ def add_user(user: UserCreate, db: Session = Depends(get_db)):
 def read_users(db: Session = Depends(get_db)):
     return get_users(db)
 
+@app.post("/set-nok/", description="NOK ID 설정", tags=["User"])
+def set_nok(dto: SetNok, db: Session = Depends(get_db)):
+    user = db.query(User).filter(User.user_id == dto.user_id).first()
+    if user:
+        user.nok_id = dto.nok_id
+        db.commit()
+        db.refresh(user)
+        return {"message": "NOK ID 설정 완료", "user": user.name}
+    else:
+        return {"message": "사용자를 찾을 수 없습니다."}
+
 # 버튼 로그 추가 API
 @app.post("/add-button-log/", description="버튼 클릭 로그 추가", tags=["Button"])
 def button_log_add(button_log: ButtonLogAdd, db: Session = Depends(get_db)):
@@ -87,5 +99,7 @@ def chat_test(request: Request):
 # 채팅 조회 API
 @app.get("/get-messages/{user_id}/", description="채팅방 메시지 조회", tags=["Chat"])
 def get_messages(user_id: str, db: Session = Depends(get_db)):
-    messages = db.query(Message).filter(Message.user_id == user_id).order_by(Message.created_at).all()
+    messages = db.query(Message).filter(
+        or_(Message.user_id == user_id, Message.user_id == db.query(User.nok_id).filter(User.user_id == user_id).scalar())
+    ).order_by(Message.created_at).all()
     return messages

@@ -8,3 +8,4 @@ class User(Base):
     user_id = Column(String(32), primary_key=True)
     name = Column(String(32), nullable=False, index=True)
     password = Column(String(32), nullable=False)
+    nok_id = Column(String(32), default=None)
