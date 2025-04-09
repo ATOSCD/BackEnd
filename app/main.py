@@ -52,6 +52,7 @@ def button_log_add(button_log: ButtonLogAdd, db: Session = Depends(get_db)):
 def button_recommend(recommend: ButtonRecommend, db: Session = Depends(get_db)):
     return recommend_buttons(db, recommend)
 
+# 웹소켓 채팅 API
 connected_clients: List[WebSocket] = []
 @app.websocket("/ws/chat")
 async def chat_websocket(websocket: WebSocket):
@@ -68,6 +69,7 @@ async def broadcast_message(message: str, sender: WebSocket):
     for client in connected_clients:
         await client.send_text(message)
 
+# 채팅 테스트 페이지
 @app.get("/ws/chat-test", response_class=HTMLResponse, description="채팅 테스트", tags=["Chat"])
 def chat_test(request: Request):
     return templates.TemplateResponse("chat_test.html", {"request": request})
