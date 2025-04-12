@@ -18,10 +18,13 @@ def get_users(db: Session):
 
 def set_nok_id(db: Session, dto: SetNok):
     user = db.query(User).filter(User.user_id == dto.user_id).first()
-    if user:
+    user2 = db.query(User).filter(User.user_id == dto.nok_id).first()
+    if user and user2:
         user.nok_id = dto.nok_id
+        user2.nok_id = dto.user_id
         db.commit()
         db.refresh(user)
+        db.refresh(user2)
         return {"message": "NOK ID 설정 완료", "user": user.name}
     else:
         return {"message": "사용자를 찾을 수 없습니다."}
