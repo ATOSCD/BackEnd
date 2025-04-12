@@ -87,10 +87,10 @@ async def chat_websocket(websocket: WebSocket, db: Session = Depends(get_db)):
         while True:
             message = await websocket.receive_text()
             save_message_to_db(db, user_id=user_id, content=message)
-            await broadcast_message(message)
+            await broadcast_message({"user_id": user_id, "message": message})
     except WebSocketDisconnect:
         connected_clients.remove(websocket)
 
-async def broadcast_message(message: str):
+async def broadcast_message(data: dict):
     for client in connected_clients:
-        await client.send_text(message)
+        await client.send_json(data)

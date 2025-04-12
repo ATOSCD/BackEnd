@@ -76,8 +76,19 @@
 
             // WebSocket 메시지를 수신했을 때
             ws.onmessage = (event) => {
+                const data = JSON.parse(event.data);
                 const message = document.createElement("div");
-                message.textContent = event.data;
+
+                // 사용자 ID를 bold로 설정
+                const userIdSpan = document.createElement("strong");
+                userIdSpan.textContent = `${data.user_id}: `;
+
+                // 메시지 텍스트 추가
+                const messageText = document.createTextNode(data.message);
+
+                message.appendChild(userIdSpan);
+                message.appendChild(messageText);
+
                 messagesDiv.appendChild(message);
                 messagesDiv.scrollTop = messagesDiv.scrollHeight; // 스크롤을 맨 아래로
             };
