@@ -8,6 +8,7 @@ from .models.User import User
 from .models.Chat import Message
 from .crud.user import *
 from .crud.button import *
+from .crud.chat import *
 from .config import SWAGGER_HEADERS, swagger_ui_parameters
 from .schemas.user import *
 from .schemas.button import *
@@ -49,14 +50,7 @@ def read_users(db: Session = Depends(get_db)):
 
 @app.post("/set-nok/", description="NOK ID 설정", tags=["User"])
 def set_nok(dto: SetNok, db: Session = Depends(get_db)):
-    user = db.query(User).filter(User.user_id == dto.user_id).first()
-    if user:
-        user.nok_id = dto.nok_id
-        db.commit()
-        db.refresh(user)
-        return {"message": "NOK ID 설정 완료", "user": user.name}
-    else:
-        return {"message": "사용자를 찾을 수 없습니다."}
+    return set_nok_id(db, dto)
 
 # 버튼 로그 추가 API
 @app.post("/add-button-log/", description="버튼 클릭 로그 추가", tags=["Button"])
@@ -67,6 +61,16 @@ def button_log_add(button_log: ButtonLogAdd, db: Session = Depends(get_db)):
 @app.post("/recommend-button/", description="버튼 추천 (최근 1주일 가장 많은 순서대로 리턴)", tags=["Button"])
 def button_recommend(recommend: ButtonRecommend, db: Session = Depends(get_db)):
     return recommend_buttons(db, recommend)
+
+# 채팅 테스트 페이지
+@app.get("/ws/chat-test", response_class=HTMLResponse, description="채팅 테스트", tags=["Chat"])
+def chat_test(request: Request):
+    return templates.TemplateResponse("chat_test.html", {"request": request})
+
+# 채팅 조회 API
+@app.get("/get-messages/{user_id}/", description="채팅방 메시지 조회", tags=["Chat"])
+def read_messages(user_id: str, db: Session = Depends(get_db)):
+    return get_messages(db, user_id)
 
 # 웹소켓 채팅 API
 connected_clients: List[WebSocket] = []
@@ -90,16 +94,3 @@ async def chat_websocket(websocket: WebSocket, db: Session = Depends(get_db)):
 async def broadcast_message(message: str):
     for client in connected_clients:
         await client.send_text(message)
-
-# 채팅 테스트 페이지
-@app.get("/ws/chat-test", response_class=HTMLResponse, description="채팅 테스트", tags=["Chat"])
-def chat_test(request: Request):
-    return templates.TemplateResponse("chat_test.html", {"request": request})
-
-# 채팅 조회 API
-@app.get("/get-messages/{user_id}/", description="채팅방 메시지 조회", tags=["Chat"])
-def get_messages(user_id: str, db: Session = Depends(get_db)):
-    messages = db.query(Message).filter(
-        or_(Message.user_id == user_id, Message.user_id == db.query(User.nok_id).filter(User.user_id == user_id).scalar())
-    ).order_by(Message.created_at).all()
-    return messages

@@ -1,6 +1,6 @@
 from sqlalchemy.orm import Session
 from app.models.User import User
-from app.schemas.user import UserCreate
+from app.schemas.user import UserCreate, SetNok
 
 def create_user(db: Session, user: UserCreate):
     db_user = User(
@@ -15,3 +15,13 @@ def create_user(db: Session, user: UserCreate):
 
 def get_users(db: Session):
     return db.query(User).all()
+
+def set_nok_id(db: Session, dto: SetNok):
+    user = db.query(User).filter(User.user_id == dto.user_id).first()
+    if user:
+        user.nok_id = dto.nok_id
+        db.commit()
+        db.refresh(user)
+        return {"message": "NOK ID 설정 완료", "user": user.name}
+    else:
+        return {"message": "사용자를 찾을 수 없습니다."}
