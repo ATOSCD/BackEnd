@@ -9,10 +9,12 @@ from .models.Chat import Message
 from .crud.user import *
 from .crud.button import *
 from .crud.chat import *
+from .crud.push_noti import *
 from .config import SWAGGER_HEADERS, swagger_ui_parameters
 from .schemas.user import *
 from .schemas.button import *
 from .schemas.chat import *
+from .schemas.notification import *
 from .chat.save_chat import save_message_to_db
 from typing import List
 
@@ -94,3 +96,15 @@ async def chat_websocket(websocket: WebSocket, db: Session = Depends(get_db)):
 async def broadcast_message(data: dict):
     for client in connected_clients:
         await client.send_json(data)
+
+
+# FCM 푸시 알림 전송 API
+@app.post("/send-notification/", description="알림 전송 (Unity에서 호출)", tags=["Notification"])
+async def send_notification(request: NotificationRequest, db: Session = Depends(get_db)):
+    send_push_message(db, request.user_id, request.title, request.body)
+    return {"message": "푸시 알림 전송 요청 완료"}
+
+@app.post("/register-token", description="FCM 토큰 저장", tags=["Notification"])
+async def register_token(data: TokenData, db: Session = Depends(get_db)):
+    save_token(db, data.user_id, data.token)
+    return {"message": "토큰 등록 완료"}
