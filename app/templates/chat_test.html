@@ -49,6 +49,8 @@
         const messageInput = document.getElementById("messageInput");
         const sendButton = document.getElementById("sendButton");
 
+        const serverAddress = "ws://192.168.1.45:8000";
+
         // WebSocket 연결 버튼 클릭 이벤트
         connectButton.addEventListener("click", () => {
             const userId = userIdInput.value.trim();
@@ -58,7 +60,7 @@
             }
 
             // WebSocket 연결 시작
-            ws = new WebSocket(`ws://192.168.1.45:8000/ws/chat?user_id=${userId}`);
+            ws = new WebSocket(`${serverAddress}/ws/chat?user_id=${userId}`);
             
             // WebSocket 연결이 열렸을 때
             ws.onopen = () => {
