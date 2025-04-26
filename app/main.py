@@ -104,7 +104,7 @@ async def send_notification(request: NotificationRequest, db: Session = Depends(
     send_push_message(db, request.user_id, request.title, request.body)
     return {"message": "푸시 알림 전송 요청 완료"}
 
-@app.post("/register-token", description="FCM 토큰 저장", tags=["Notification"])
+@app.post("/register-token/", description="FCM 토큰 저장", tags=["Notification"])
 async def register_token(data: TokenData, db: Session = Depends(get_db)):
     save_token(db, data.user_id, data.token)
     return {"message": "토큰 등록 완료"}
