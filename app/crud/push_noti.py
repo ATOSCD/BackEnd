@@ -95,3 +95,6 @@ def save_noti_to_db(db: Session, user_id: int, title: str, body: str):
     db.commit()
     db.refresh(new_noti)
     return new_noti
+
+def get_noti(db: Session, user_id: int):
+    return db.query(Notifications).filter(Notifications.user_id == user_id).order_by(Notifications.created_at.desc()).all()
