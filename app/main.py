@@ -100,7 +100,10 @@ async def chat_websocket(websocket: WebSocket, db: Session = Depends(get_db)):
 
 async def broadcast_message(data: dict):
     for client in connected_clients:
-        await client.send_json(data)
+        try:
+            await client.send_json(data)
+        except Exception as e:
+            print(f"Failed to send message to {client}: {e}")
 
 
 # IoT 웹소켓 통신 API
@@ -122,11 +125,7 @@ async def iot_websocket(websocket: WebSocket, db: Session = Depends(get_db)):
             print(f"Received from IoT {iot_id}: {content}")
             await broadcast_message_iot({"iot_id": iot_id, "message": content})
     except WebSocketDisconnect:
-        for iot_id, client in list(connected_IoTs.items()):
-            if client == websocket:
-                connected_IoTs.pop(iot_id, None)
-                print(f"IoT {iot_id} disconnected")
-                break
+        connected_IoTs.remove(websocket)
 
 async def broadcast_message_iot(data: dict):
     for client in connected_IoTs:
