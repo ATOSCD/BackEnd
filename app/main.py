@@ -15,7 +15,8 @@ from .schemas.user import *
 from .schemas.button import *
 from .schemas.chat import *
 from .schemas.notification import *
-from .chat.save_chat import save_message_to_db
+from .database.save_chat import save_message_to_db
+from .database.save_noti import save_noti_to_db
 from typing import List
 
 
@@ -139,6 +140,7 @@ async def broadcast_message_iot(data: dict):
 @app.post("/send-notification/", description="알림 전송 (Unity에서 호출)", tags=["Notification"])
 async def send_notification(request: NotificationRequest, db: Session = Depends(get_db)):
     send_push_message(db, request.user_id, request.title, request.body)
+    save_noti_to_db(db, request.user_id, request.title, request.body)
     return {"message": "푸시 알림 전송 요청 완료"}
 
 @app.post("/register-token/", description="FCM 토큰 저장", tags=["Notification"])
