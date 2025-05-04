@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>IoT WebSocket Test</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+        }
+        #messages {
+            border: 1px solid #ccc;
+            padding: 10px;
+            height: 300px;
+            overflow-y: scroll;
+            margin-bottom: 10px;
+        }
+        #iotIdInput, #messageInput {
+            width: calc(100% - 100px);
+            padding: 10px;
+            margin-bottom: 10px;
+        }
+        #connectButton, #sendButton {
+            padding: 10px;
+        }
+    </style>
+</head>
+<body>
+    <h1>IoT WebSocket Test</h1>
+    <div>
+        <label for="iotIdInput">IoT ID:</label>
+        <input type="text" id="iotIdInput" placeholder="Enter IoT ID">
+        <button id="connectButton">Connect</button>
+    </div>
+    <div id="messages"></div>
+    <div>
+        <input type="text" id="messageInput" placeholder="Enter message">
+        <button id="sendButton" disabled>Send</button>
+    </div>
+
+    <script>
+        let ws;
+        const iotIdInput = document.getElementById("iotIdInput");
+        const connectButton = document.getElementById("connectButton");
+        const messagesDiv = document.getElementById("messages");
+        const messageInput = document.getElementById("messageInput");
+        const sendButton = document.getElementById("sendButton");
+
+        const serverAddress = "ws://192.168.1.89:8000";
+
+        connectButton.addEventListener("click", () => {
+            const iotId = iotIdInput.value.trim();
+            if (!iotId) {
+                alert("Please enter a valid IoT ID.");
+                return;
+            }
+
+            // WebSocket 연결
+            ws = new WebSocket(`${serverAddress}/ws/iot`);
+
+            ws.onopen = () => {
+                const message = document.createElement("div");
+                message.textContent = "Connected to the IoT WebSocket server.";
+                messagesDiv.appendChild(message);
+
+                // IoT ID 전송
+                ws.send(JSON.stringify({ iot_id: iotId, message: "IoT connected" }));
+
+                // UI 업데이트
+                iotIdInput.disabled = true;
+                connectButton.disabled = true;
+                messageInput.disabled = false;
+                sendButton.disabled = false;
+            };
+
+            ws.onmessage = (event) => {
+                const data = JSON.parse(event.data);
+                const message = document.createElement("div");
+                message.textContent = `From Server: [IoT ID: ${data.iot_id}] ${data.message}`;
+                messagesDiv.appendChild(message);
+                messagesDiv.scrollTop = messagesDiv.scrollHeight; // 스크롤을 맨 아래로
+            };
+
+            ws.onclose = () => {
+                const message = document.createElement("div");
+                message.textContent = "Disconnected from the IoT WebSocket server.";
+                messagesDiv.appendChild(message);
+
+                // UI 초기화
+                iotIdInput.disabled = false;
+                connectButton.disabled = false;
+                messageInput.disabled = true;
+                sendButton.disabled = true;
+            };
+
+            ws.onerror = (error) => {
+                console.error("WebSocket error:", error);
+                alert("Failed to connect to the WebSocket server.");
+            };
+        });
+
+        sendButton.addEventListener("click", () => {
+            const message = messageInput.value.trim();
+            if (!message) {
+                alert("Please enter a message.");
+                return;
+            }
+
+            // 메시지 전송
+            ws.send(JSON.stringify({ iot_id: iotIdInput.value.trim(), message }));
+            messageInput.value = ""; // 입력 필드 초기화
+        });
+    </script>
+</body>
+</html>
