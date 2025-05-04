@@ -5,6 +5,7 @@ from google.oauth2 import service_account
 import google.auth.transport.requests
 from sqlalchemy.orm import Session
 from app.models.FCMToken import FCMToken
+from app.models.Notification import Notifications
 from dotenv import load_dotenv
 import os
 
@@ -83,3 +84,14 @@ def save_token(db: Session, user_id: str, token: str):
     db.commit()
     db.refresh(db_token)
     return db_token
+
+def save_noti_to_db(db: Session, user_id: int, title: str, body: str):
+    new_noti = Notifications(
+        user_id=user_id,
+        title=title,
+        body=body
+    )
+    db.add(new_noti)
+    db.commit()
+    db.refresh(new_noti)
+    return new_noti

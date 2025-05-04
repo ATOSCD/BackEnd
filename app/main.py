@@ -15,8 +15,6 @@ from .schemas.user import *
 from .schemas.button import *
 from .schemas.chat import *
 from .schemas.notification import *
-from .database.save_chat import save_message_to_db
-from .database.save_noti import save_noti_to_db
 from typing import List
 
 
