@@ -59,6 +59,16 @@ def read_user(dto: FindUser, db: Session = Depends(get_db)):
 def set_nok(dto: SetNok, db: Session = Depends(get_db)):
     return set_nok_id(db, dto)
 
+# 버튼 커스텀
+@app.post("/custom-button/", description="버튼 커스텀", tags=["Button"])
+def custom_buttons(data: CustomButton, db: Session = Depends(get_db)):
+    return custom_button(db, data)
+
+# 버튼 카테고리별 조회 API
+@app.post("/get-button-by-category/", description="카테고리별 버튼 조회", tags=["Button"])
+def get_buttons_by_category(data: GetButtonByCategory, db: Session = Depends(get_db)):
+    return get_button_by_category(db, data)
+
 # 버튼 로그 추가 API
 @app.post("/add-button-log/", description="버튼 클릭 로그 추가", tags=["Button"])
 def button_log_add(button_log: ButtonLogAdd, db: Session = Depends(get_db)):
