@@ -21,6 +21,18 @@ def get_users(db: Session):
 def set_nok_id(db: Session, dto: SetNok):
     user = db.query(User).filter(User.user_id == dto.user_id).first()
     user2 = db.query(User).filter(User.user_id == dto.nok_id).first()
+    if user.nok_id != None:
+        user_nok = db.query(User).filter(User.user_id == user.nok_id).first()
+        user_nok.nok_id = None
+        db.commit()
+        db.refresh(user_nok)
+        
+    if user2.nok_id != None:
+        user2_nok = db.query(User).filter(User.user_id == user2.nok_id).first()
+        user2_nok.nok_id = None
+        db.commit()
+        db.refresh(user2_nok)
+
     if user and user2:
         user.nok_id = dto.nok_id
         user2.nok_id = dto.user_id
