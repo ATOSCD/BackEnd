@@ -7,5 +7,6 @@ class User(Base):
 
     user_id = Column(String(32), primary_key=True)
     name = Column(String(32), nullable=False, index=True)
-    password = Column(String(32), nullable=False)
+    password = Column(String(256), nullable=False)
     nok_id = Column(String(32), default=None)
+    patient = Column(Integer, default=0)

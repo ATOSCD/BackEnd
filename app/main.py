@@ -49,6 +49,12 @@ def add_user(user: UserCreate, db: Session = Depends(get_db)):
 def read_users(db: Session = Depends(get_db)):
     return get_users(db)
 
+# 사용자 조회 API
+@app.post("/find-patient/", description="사용자 조회", tags=["User"])
+def read_user(dto: FindUser, db: Session = Depends(get_db)):
+    return find_patient(db, dto)
+    
+
 @app.post("/set-nok/", description="NOK ID 설정", tags=["User"])
 def set_nok(dto: SetNok, db: Session = Depends(get_db)):
     return set_nok_id(db, dto)
@@ -142,7 +148,7 @@ async def send_notification(request: NotificationRequest, db: Session = Depends(
     return {"message": "푸시 알림 전송 요청 완료"}
 
 # 알림 조회 API
-@app.get("/get-notifications/{user_id}/", description="알림 조회", tags=["Notification"])
+@app.get("/get-notifications/{user_id}/", description="알림 조회", tags=["Notification"], response_model=List[NotificationResponse])
 async def get_notifications(user_id: str, db: Session = Depends(get_db)):
     notifications = get_noti(db, user_id)
     return notifications
@@ -151,3 +157,8 @@ async def get_notifications(user_id: str, db: Session = Depends(get_db)):
 async def register_token(data: TokenData, db: Session = Depends(get_db)):
     save_token(db, data.user_id, data.token)
     return {"message": "토큰 등록 완료"}
+
+@app.post("/save-notification/", description="알림 저장", tags=["Notification"])
+async def save_notification(request: NotificationRequest, db: Session = Depends(get_db)):
+    save_noti_to_db(db, request.user_id, request.title, request.body)
+    return {"message": "알림 저장 완료"}
