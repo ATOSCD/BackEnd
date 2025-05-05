@@ -10,6 +10,7 @@ def add_button_log(db: Session, button_log: ButtonLogAdd):
     log = ButtonLog(
         user_id=button_log.user_id,
         button_id=button_log.button_id,
+        category=button_log.category,
         date=func.now()
     )
     db.add(log)
@@ -23,10 +24,11 @@ def recommend_buttons(db: Session, recommend: ButtonRecommend):
     # 쿼리 작성: 최근 1주일간의 button_id를 개수로 정렬
     result = (
         db.query(ButtonLog.button_id, func.count(ButtonLog.button_id).label("count"))
-        .filter(ButtonLog.date >= week)                  # 최근 1주일 데이터 필터링
-        .filter(ButtonLog.user_id == recommend.user_id)  # 특정 사용자 필터링
-        .group_by(ButtonLog.button_id)                   # button_id로 그룹화
-        .order_by(desc("count"))                         # 개수로 내림차순 정렬
+        .filter(ButtonLog.date >= week)
+        .filter(ButtonLog.user_id == recommend.user_id)
+        .filter(ButtonLog.category == recommend.category)
+        .group_by(ButtonLog.button_id)
+        .order_by(desc("count"))
         .all()
     )
 

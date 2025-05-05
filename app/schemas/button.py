@@ -4,9 +4,11 @@ from typing import List, Optional
 class ButtonLogAdd(BaseModel):
     user_id: str
     button_id: int
+    category: str
 
 class ButtonRecommend(BaseModel):
     user_id: str
+    category: str
 
 class CustomButton(BaseModel):
     user_id: str

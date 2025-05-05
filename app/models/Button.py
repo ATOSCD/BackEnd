@@ -8,6 +8,7 @@ class ButtonLog(Base):
 
     user_id = Column(String(32), nullable=False)
     button_id = Column(Integer, nullable=False)
+    category = Column(String(32), nullable=False)
     date = Column(DateTime, nullable=False, default=func.now())
 
     __table_args__ = (
