@@ -1,4 +1,5 @@
 from pydantic import BaseModel
+from typing import List, Optional
 
 class ButtonLogAdd(BaseModel):
     user_id: str
@@ -15,4 +16,9 @@ class CustomButton(BaseModel):
 
 class GetButtonByCategory(BaseModel):
     user_id: str
+    category: str
+
+class UpdateButton(BaseModel):
+    user_id: str
+    button_text: List[str]
     category: str

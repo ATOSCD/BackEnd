@@ -64,6 +64,11 @@ def set_nok(dto: SetNok, db: Session = Depends(get_db)):
 def custom_buttons(data: CustomButton, db: Session = Depends(get_db)):
     return custom_button(db, data)
 
+# 버튼 업데이트 API
+@app.post("/update-button/", description="버튼 업데이트", tags=["Button"])
+def update_buttons(data: UpdateButton, db: Session = Depends(get_db)):
+    return update_button(db, data)
+
 # 버튼 카테고리별 조회 API
 @app.post("/get-button-by-category/", description="카테고리별 버튼 조회", tags=["Button"])
 def get_buttons_by_category(data: GetButtonByCategory, db: Session = Depends(get_db)):

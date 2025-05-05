@@ -53,3 +53,17 @@ def get_button_by_category(db: Session, data: GetButtonByCategory):
         .all()
     )
     return buttons
+
+def update_button(db: Session, data: UpdateButton):
+    for i in range(len(data.button_text)):
+        button = ButtonList(
+            user_id=data.user_id,
+            button_id=i+1,
+            category=data.category,
+            button_text=data.button_text[i]
+        )
+        m_button = db.merge(button)
+        db.commit()
+        db.refresh(m_button)
+
+    return True
