@@ -6,6 +6,7 @@ import google.auth.transport.requests
 from sqlalchemy.orm import Session
 from app.models.FCMToken import FCMToken
 from app.models.Notification import Notifications
+from app.models.User import User
 from dotenv import load_dotenv
 import os
 
@@ -26,7 +27,17 @@ def get_access_token():
 def send_push_message(db: Session, user_id: str, title: str, body: str):
     access_token = get_access_token()
     
-    db_token = db.query(FCMToken).filter(FCMToken.user_id == user_id).first()
+    user = db.query(User).filter(User.user_id == user_id).first()
+
+    if not user :
+        print(f"사용자를 찾을 수 없습니다. user_id: {user_id}")
+        return
+    
+    if user.nok_id == None:
+        print(f"사용자의 NOK ID가 없습니다. user_id: {user_id}")
+        return
+
+    db_token = db.query(FCMToken).filter(FCMToken.user_id == user.nok_id).first()
     if not db_token:
         print(f"FCM 토큰을 찾을 수 없습니다. user_id: {user_id}")
         return
