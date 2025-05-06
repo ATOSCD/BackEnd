@@ -8,6 +8,9 @@ class ButtonLogAdd(BaseModel):
 
 class ButtonRecommend(BaseModel):
     user_id: str
+
+class ButtonRecommendByCategory(BaseModel):
+    user_id: str
     category: str
 
 class CustomButton(BaseModel):

@@ -17,12 +17,25 @@ def add_button_log(db: Session, button_log: ButtonLogAdd):
     db.commit()
     return button_log
 
-
 def recommend_buttons(db: Session, recommend: ButtonRecommend):
     week = datetime.now() - timedelta(days=7)
 
+    buttons = (
+        db.query(ButtonLog.button_id, func.count(ButtonLog.button_id).label("count"))
+        .filter(ButtonLog.date >= week)
+        .filter(ButtonLog.user_id == recommend.user_id)
+        .group_by(ButtonLog.category, ButtonLog.button_id)
+        .order_by(desc("count"))
+        .all()
+    )
+
+    return buttons
+
+def recommend_buttons_by_category(db: Session, recommend: ButtonRecommendByCategory):
+    week = datetime.now() - timedelta(days=7)
+
     # 쿼리 작성: 최근 1주일간의 button_id를 개수로 정렬
-    result = (
+    buttons = (
         db.query(ButtonLog.button_id, func.count(ButtonLog.button_id).label("count"))
         .filter(ButtonLog.date >= week)
         .filter(ButtonLog.user_id == recommend.user_id)
@@ -32,7 +45,7 @@ def recommend_buttons(db: Session, recommend: ButtonRecommend):
         .all()
     )
 
-    return [row.button_id for row in result]
+    return buttons
 
 def custom_button(db: Session, data: CustomButton):
     button = ButtonList(
