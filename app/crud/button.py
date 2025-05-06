@@ -21,7 +21,7 @@ def recommend_buttons(db: Session, recommend: ButtonRecommend):
     week = datetime.now() - timedelta(days=7)
 
     buttons = (
-        db.query(ButtonLog.button_id, func.count(ButtonLog.button_id).label("count"))
+        db.query(ButtonLog.user_id, ButtonLog.category, ButtonLog.button_id, func.count(ButtonLog.button_id).label("count"))
         .filter(ButtonLog.date >= week)
         .filter(ButtonLog.user_id == recommend.user_id)
         .group_by(ButtonLog.category, ButtonLog.button_id)
@@ -29,14 +29,32 @@ def recommend_buttons(db: Session, recommend: ButtonRecommend):
         .all()
     )
 
-    return buttons
+    result = []
+    for i in range(min(5,len(buttons))):
+        button = buttons[i]
+        button_info = (
+            db.query(ButtonList)
+            .filter(ButtonList.user_id == recommend.user_id)
+            .filter(ButtonList.category == button.category)
+            .filter(ButtonList.button_id == button.button_id)
+            .first()
+        )
+        if button_info:
+            result.append({
+                "button_id": button_info.button_id,
+                "category": button_info.category,
+                "button_text": button_info.button_text,
+                "count": button.count
+            })
+
+    return result
 
 def recommend_buttons_by_category(db: Session, recommend: ButtonRecommendByCategory):
     week = datetime.now() - timedelta(days=7)
 
     # 쿼리 작성: 최근 1주일간의 button_id를 개수로 정렬
     buttons = (
-        db.query(ButtonLog.button_id, func.count(ButtonLog.button_id).label("count"))
+        db.query(ButtonLog.user_id, ButtonLog.category, ButtonLog.button_id, func.count(ButtonLog.button_id).label("count"))
         .filter(ButtonLog.date >= week)
         .filter(ButtonLog.user_id == recommend.user_id)
         .filter(ButtonLog.category == recommend.category)
@@ -45,7 +63,25 @@ def recommend_buttons_by_category(db: Session, recommend: ButtonRecommendByCateg
         .all()
     )
 
-    return buttons
+    result = []
+    for i in range(min(5, len(buttons))):
+        button = buttons[i]
+        button_info = (
+            db.query(ButtonList)
+            .filter(ButtonList.user_id == recommend.user_id)
+            .filter(ButtonList.category == recommend.category)
+            .filter(ButtonList.button_id == button.button_id)
+            .first()
+        )
+        if button_info:
+            result.append({
+                "button_id": button_info.button_id,
+                "category": button_info.category,
+                "button_text": button_info.button_text,
+                "count": button.count
+            })
+
+    return result
 
 def custom_button(db: Session, data: CustomButton):
     button = ButtonList(

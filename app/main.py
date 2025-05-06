@@ -79,10 +79,15 @@ def get_buttons_by_category(data: GetButtonByCategory, db: Session = Depends(get
 def button_log_add(button_log: ButtonLogAdd, db: Session = Depends(get_db)):
     return add_button_log(db, button_log)
 
-# 버튼 추천 API
+# 버튼 추천 API (category별)
 @app.post("/recommend-button-by-category/", description="카테고리별 버튼 추천 (최근 1주일 가장 많은 순서대로 리턴)", tags=["Button"])
-def button_recommend_category(recommend: ButtonRecommend, db: Session = Depends(get_db)):
+def button_recommend_category(recommend: ButtonRecommendByCategory, db: Session = Depends(get_db)):
     return recommend_buttons_by_category(db, recommend)
+
+# 버튼 추천 API (전체)
+@app.post("/recommend-button/", description="버튼 추천 (최근 1주일 가장 많은 순서대로 리턴)", tags=["Button"])
+def button_recommend(recommend: ButtonRecommend, db: Session = Depends(get_db)):
+    return recommend_buttons(db, recommend)
 
 # 채팅 테스트 페이지
 @app.get("/ws/chat-test", response_class=HTMLResponse, description="채팅 테스트", tags=["Chat"])
