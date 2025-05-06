@@ -58,6 +58,21 @@ def get_button_by_category(db: Session, data: GetButtonByCategory):
 
 def update_button(db: Session, data: UpdateButton):
     for i in range(len(data.button_text)):
+        original_button = (
+            db.query(ButtonList)
+            .filter(ButtonList.user_id == data.user_id)
+            .filter(ButtonList.category == data.category)
+            .filter(ButtonList.button_id == i+1)
+            .first()
+        )
+
+        if original_button and original_button.button_text != data.button_text[i]:
+            db.query(ButtonLog).filter(
+                ButtonLog.user_id == data.user_id,
+                ButtonLog.category == data.category,
+                ButtonLog.button_id == i+1
+            ).delete()
+            
         button = ButtonList(
             user_id=data.user_id,
             button_id=i+1,
