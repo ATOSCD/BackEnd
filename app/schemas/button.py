@@ -27,3 +27,10 @@ class UpdateButton(BaseModel):
     user_id: str
     button_text: List[str]
     category: str
+
+class SelectCategory(BaseModel):
+    user_id: str
+    category: List[str]
+
+class GetSelectedCategory(BaseModel):
+    user_id: str

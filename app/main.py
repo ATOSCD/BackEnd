@@ -89,6 +89,16 @@ def button_recommend_category(recommend: ButtonRecommendByCategory, db: Session 
 def button_recommend(recommend: ButtonRecommend, db: Session = Depends(get_db)):
     return recommend_buttons(db, recommend)
 
+# 버튼 카테고리 선택 (목을 움직이는 환자를 위한 기능)
+@app.post("/select-button-category/", description="버튼 카테고리 선택", tags=["Button"])
+def select_button_category(data: SelectCategory, db: Session = Depends(get_db)):
+    return select_category(db, data)
+
+# 선택된 카테고리 조회 API
+@app.post("/get-selected-category/", description="선택된 카테고리 조회", tags=["Button"])
+def get_selected_categories(data: GetSelectedCategory, db: Session = Depends(get_db)):
+    return get_selected_category(db, data)
+
 # 채팅 테스트 페이지
 @app.get("/ws/chat-test", response_class=HTMLResponse, description="채팅 테스트", tags=["Chat"])
 def chat_test(request: Request):

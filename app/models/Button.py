@@ -26,3 +26,13 @@ class ButtonList(Base):
     __table_args__ = (
         PrimaryKeyConstraint('user_id','category','button_id'),
     )
+
+class SelectedCategory(Base):
+    __tablename__ = "selected_category"
+
+    user_id = Column(String(32), nullable=False)
+    category = Column(String(32), nullable=False)
+
+    __table_args__ = (
+        PrimaryKeyConstraint('user_id','category'),
+    )

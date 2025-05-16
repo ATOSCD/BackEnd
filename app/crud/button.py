@@ -133,3 +133,17 @@ def update_button(db: Session, data: UpdateButton):
         db.refresh(m_button)
 
     return True
+
+def select_category(db: Session, data: SelectCategory):
+    db.query(SelectedCategory).filter(SelectedCategory.user_id == data.user_id).delete()
+    db.commit()
+
+    for category in data.category:  # data.categories는 category 리스트라고 가정
+        new_row = SelectedCategory(user_id=data.user_id, category=category)
+        db.add(new_row)
+    db.commit()
+    return True
+
+def get_selected_category(db: Session, data: GetSelectedCategory):
+    selected_categories = db.query(SelectedCategory).filter(SelectedCategory.user_id == data.user_id).all()
+    return [category.category for category in selected_categories]
