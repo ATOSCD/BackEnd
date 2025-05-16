@@ -60,6 +60,9 @@ def send_push_message(db: Session, user_id: str, title: str, body: str):
             },
             'android': {
                 'priority': 'high',
+                'notification': {
+                    'channel_id': 'high_importance_channel',
+                },
             },
             'apns': {
                 'headers': {
