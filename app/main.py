@@ -99,6 +99,11 @@ def select_button_category(data: SelectCategory, db: Session = Depends(get_db)):
 def get_selected_categories(data: GetSelectedCategory, db: Session = Depends(get_db)):
     return get_selected_category(db, data)
 
+# 선택된 카테고리 조회 API (AR 용)
+@app.post("/get-selected-category-ar/", description="선택된 카테고리 조회 (AR 용)", tags=["Button"])
+def get_selected_categories_ar(data: GetSelectedCategory, db: Session = Depends(get_db)):
+    return get_selected_category_ar(db, data)
+
 # 채팅 테스트 페이지
 @app.get("/ws/chat-test", response_class=HTMLResponse, description="채팅 테스트", tags=["Chat"])
 def chat_test(request: Request):

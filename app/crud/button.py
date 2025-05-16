@@ -147,3 +147,25 @@ def select_category(db: Session, data: SelectCategory):
 def get_selected_category(db: Session, data: GetSelectedCategory):
     selected_categories = db.query(SelectedCategory).filter(SelectedCategory.user_id == data.user_id).all()
     return [category.category for category in selected_categories]
+
+def get_selected_category_ar(db: Session, data: GetSelectedCategory):
+    selected_categories = db.query(SelectedCategory).filter(SelectedCategory.user_id == data.user_id).all()
+
+    category_map = {
+        "에어컨": "AirRequestButton",
+        "침대": "BedRequestButton",
+        "책": "BookRequestButton",
+        "의자": "ChairRequestButton",
+        "시계": "ClockRequestButton",
+        "문": "DoorRequestButton",
+        "선풍기": "FanRequestButton",
+        "램프": "LampRequestButton",
+        "노트북": "LaptopRequestButton",
+        "머그컵": "MugRequestButton",
+        "체온계": "ThermometerRequestButton",
+        "휴지": "TissueRequestButton",
+        "창문": "WindowRequestButton",
+        "TV": "TVRequestButton",
+    }
+
+    return [category_map.get(category.category, category.category) for category in selected_categories]
