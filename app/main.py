@@ -185,7 +185,7 @@ async def send_notification(request: NotificationRequest, db: Session = Depends(
 # 긴급 알림 전송 API
 @app.post("/send-emergency-notification/", description="긴급 알림 전송 (Unity에서 호출)", tags=["Notification"])
 async def send_emergency_notification(request: NotificationRequest, db: Session = Depends(get_db)):
-    send_push_warning(db, request.user_id, request.title, request.body, emergency=True)
+    send_push_warning(db, request.user_id, request.title, request.body)
     save_noti_to_db(db, request.user_id, request.title, request.body)
     return {"message": "긴급 푸시 알림 전송 요청 완료"}
 
