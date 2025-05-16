@@ -62,9 +62,6 @@ def send_push_warning(db: Session, user_id: str, title: str, body: str):
                 'priority': 'high',
                 'notification': {
                     'channel_id': 'warning_channel',  # 진동 전용 채널
-                    'vibrate_timings_millis': ['0', '500', '1000', '500', '2000'],
-                    'default_vibrate_timings': False,
-                    'importance': 'MAX',
                 },
             },
             'apns': {
