@@ -180,8 +180,8 @@ async def chat_websocket(websocket: WebSocket, db: Session = Depends(get_db)):
             user_id = message.get("user_id")
             text = message.get("text")
             connected_recommend[user_id] = websocket  
-            # recommend_text = get_recommend(db, user_id=user_id, text=message)
-            await unicast_message(user_id, {"user_id": user_id, "message": message})
+            recommend_text = get_recommend_texts(db, user_id, text)
+            await unicast_message(user_id, {"user_id": user_id, "text": recommend_text})
     except WebSocketDisconnect:
         connected_recommend.pop(user_id, None)
 
