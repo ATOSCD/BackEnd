@@ -9,3 +9,5 @@ class Message(Base):
     content = Column(Text, nullable=False)
     created_at = Column(TIMESTAMP, server_default=func.now())
     is_read = Column(Boolean, default=False)
+
+

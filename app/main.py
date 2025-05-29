@@ -4,20 +4,19 @@ from fastapi.templating import Jinja2Templates
 from sqlalchemy.orm import Session
 from sqlalchemy import or_
 from .database.connection import SessionLocal, engine, Base
-from .models.User import User
-from .models.Chat import Message
 from .crud.user import *
 from .crud.button import *
 from .crud.chat import *
 from .crud.push_noti import *
+from .crud.text_recommend import *
 from .config import SWAGGER_HEADERS, swagger_ui_parameters
 from .schemas.user import *
 from .schemas.button import *
 from .schemas.chat import *
 from .schemas.notification import *
+from .schemas.text_recommend import *
 from typing import List
-
-
+import asyncio
 
 # DB 테이블 생성 (최초 실행 시 필요)
 Base.metadata.create_all(bind=engine)
@@ -33,6 +32,16 @@ def get_db():
         yield db
     finally:
         db.close()
+
+async def update_recommend_chat():
+    while True:
+        print("주기적으로 실행되는 작업입니다.")
+        # 여기에 원하는 작업(예: DB 업데이트 등) 작성
+        await asyncio.sleep(60)  # 60초마다 실행
+
+@app.on_event("startup")
+async def start_periodic_task():
+    asyncio.create_task(update_recommend_chat())
 
 # FastAPI 기본 경로
 @app.get("/", response_class=HTMLResponse, description="서버 기본 경로", tags=["Root"])
@@ -160,6 +169,31 @@ async def broadcast_message(data: dict):
             print(f"Failed to send message to {client}: {e}")
 
 
+connected_recommend: dict = {}
+
+@app.websocket("/ws/chat-recommend")
+async def chat_websocket(websocket: WebSocket, db: Session = Depends(get_db)):
+    await websocket.accept()
+    try:
+        while True:
+            message = await websocket.receive_json()
+            user_id = message.get("user_id")
+            text = message.get("text")
+            connected_recommend[user_id] = websocket  
+            # recommend_text = get_recommend(db, user_id=user_id, text=message)
+            await unicast_message(user_id, {"user_id": user_id, "message": message})
+    except WebSocketDisconnect:
+        connected_recommend.pop(user_id, None)
+
+async def unicast_message(user_id, data: dict):
+    ws = connected_recommend.get(user_id)
+    if ws:
+        try:
+            await ws.send_json(data)
+        except Exception as e:
+            print(f"Failed to send message to {user_id}: {e}")
+
+
 # IoT 웹소켓 통신 API
 connected_IoTs: List[WebSocket] = []
 @app.websocket("/ws/iot")
@@ -218,3 +252,13 @@ async def register_token(data: TokenData, db: Session = Depends(get_db)):
 async def save_notification(request: NotificationRequest, db: Session = Depends(get_db)):
     save_noti_to_db(db, request.user_id, request.title, request.body)
     return {"message": "알림 저장 완료"}
+
+# 채팅 추천 추가 API
+@app.post("/add-recommend-chat/", description="추천 채팅 추가", tags=["RecommendChat"])
+def add_recommend_chat(recommend_texts: List[str], db: Session = Depends(get_db)):
+    return add_recommend_texts(db, recommend_texts)
+
+# 채팅 추천 조회 API
+@app.post("/get-recommend-chat/", description="추천 채팅 조회", tags=["RecommendChat"])
+def get_recommend_chat(data: TextRecommend, db: Session = Depends(get_db)):
+    return get_recommend_texts(db, data.user_id, data.input_text)
