@@ -39,6 +39,16 @@ def get_db():
 def read_root(request: Request):
     return templates.TemplateResponse("root.html", {"request": request})
 
+# 로그인 API
+@app.post("/login/", description="로그인", tags=["User"])
+def login(user: Userlogin, db: Session = Depends(get_db)):
+    return user_login(db, user)
+
+# 아이디 중복 체크 API
+@app.post("/check-id/", description="아이디 중복 체크", tags=["User"])
+def check_id(user: IdCheck, db: Session = Depends(get_db)):
+    return id_check(db, user)
+
 # 사용자 추가 API
 @app.post("/add-user/", description="사용자 추가", tags=["User"])
 def add_user(user: UserCreate, db: Session = Depends(get_db)):
@@ -58,6 +68,10 @@ def read_user(dto: FindUser, db: Session = Depends(get_db)):
 @app.post("/set-nok/", description="NOK ID 설정", tags=["User"])
 def set_nok(dto: SetNok, db: Session = Depends(get_db)):
     return set_nok_id(db, dto)
+
+@app.post("/get-nok/", description="NOK ID 조회", tags=["User"])
+def get_nok(dto: GetNok, db: Session = Depends(get_db)):
+    return get_nok_id(db, dto)
 
 # 버튼 커스텀
 @app.post("/custom-button/", description="버튼 커스텀", tags=["Button"])

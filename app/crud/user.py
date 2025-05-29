@@ -39,9 +39,18 @@ def set_nok_id(db: Session, dto: SetNok):
         db.commit()
         db.refresh(user)
         db.refresh(user2)
-        return {"message": "NOK ID 설정 완료", "user": user.name}
+        return {"nok_name": user2.name}
     else:
-        return {"message": "사용자를 찾을 수 없습니다."}
+        return {"nok_name": None}
+    
+def get_nok_id(db: Session, dto: GetNok):
+    user = db.query(User).filter(User.user_id == dto.user_id).first()
+    
+    if user and user.nok_id:
+        nok_user = db.query(User).filter(User.user_id == user.nok_id).first()
+        return {"nok_id": nok_user.user_id, "nok_name": nok_user.name}
+    else:
+        return {"nok_id": None, "nok_name": None}
     
 def find_patient(db: Session, data: FindUser):
     user = db.query(User).filter(User.user_id == data.user_id, User.patient == 2).first()
@@ -59,4 +68,24 @@ def find_patient(db: Session, data: FindUser):
     )
     
     return return_user
+
+def user_login(db: Session, data: Userlogin):
+    user = db.query(User).filter(User.user_id == data.user_id).first()
+    
+    if not user:
+        return 0
+    if not check_password_hash(user.password, data.password):
+        return 0
+    if user.patient == 1:
+        return 1
+    else:
+        return 0
+
+def id_check(db: Session, data: IdCheck):
+    user = db.query(User).filter(User.user_id == data.user_id).first()
+    
+    if not user:
+        return 1
+    else:
+        return 0
     

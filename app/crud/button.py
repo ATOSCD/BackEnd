@@ -165,7 +165,7 @@ def get_selected_category_ar(db: Session, data: GetSelectedCategory):
         "체온계": "ThermometerRequestButton",
         "휴지": "TissueRequestButton",
         "창문": "WindowRequestButton",
-        "TV": "TVRequestButton",
+        "티비": "TVRequestButton",
     }
 
     return [category_map.get(category.category, category.category) for category in selected_categories]
