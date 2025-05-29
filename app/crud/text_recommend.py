@@ -22,6 +22,8 @@ def get_recommend_texts(db: Session, user_id: str, input_text: str):
     for sentence in sentence_list:
         if is_jamo_substring(input_text, sentence):
             results.append(sentence)
+        if len(results) >= 4:
+            break
         
     return results
 
