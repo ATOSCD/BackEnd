@@ -1,6 +1,6 @@
 from sqlalchemy.orm import Session
 from app.models.RecommendText import *
-from jamo import h2j
+from jamo import h2j, j2hcj
 
 def add_recommend_texts(db: Session, recommend_texts: list):
     for text in recommend_texts:
@@ -30,8 +30,8 @@ def get_recommend_texts(db: Session, user_id: str, input_text: str):
 
 def is_jamo_substring(short, long):
     # 한글을 자모로 분리
-    short_jamo = ''.join(h2j(short))
-    short_jamo = ''.join(h2j(short)).replace(" ", "")
-    long_jamo = ''.join(h2j(long))
-    long_jamo = ''.join(h2j(long)).replace(" ", "")
+    short_jamo = j2hcj(h2j(short)).replace(" ", "")
+    long_jamo = j2hcj(h2j(long)).replace(" ", "")
+    if short_jamo in long_jamo:
+        print(f"'{short_jamo}' is a substring of '{long_jamo}'")
     return short_jamo in long_jamo
