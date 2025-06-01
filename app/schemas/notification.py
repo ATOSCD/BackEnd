@@ -5,6 +5,7 @@ class NotificationRequest(BaseModel):
     user_id: str
     title: str
     body: str
+    category: str
 
 class TokenData(BaseModel):
     user_id: str

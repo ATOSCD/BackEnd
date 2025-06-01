@@ -151,21 +151,61 @@ def get_selected_category(db: Session, data: GetSelectedCategory):
 def get_selected_category_ar(db: Session, data: GetSelectedCategory):
     selected_categories = db.query(SelectedCategory).filter(SelectedCategory.user_id == data.user_id).all()
 
-    category_map = {
-        "에어컨": "AirRequestButton",
-        "침대": "BedRequestButton",
-        "책": "BookRequestButton",
-        "의자": "ChairRequestButton",
-        "시계": "ClockRequestButton",
-        "문": "DoorRequestButton",
-        "선풍기": "FanRequestButton",
-        "램프": "LampRequestButton",
-        "노트북": "LaptopRequestButton",
-        "머그컵": "MugRequestButton",
-        "체온계": "ThermometerRequestButton",
-        "휴지": "TissueRequestButton",
-        "창문": "WindowRequestButton",
-        "티비": "TVRequestButton",
-    }
-
     return [category_map.get(category.category, category.category) for category in selected_categories]
+
+def increase_category_usage(db: Session, user_id: str, category: str):
+    usage = db.query(ButtonCategoryUsage).filter(
+        ButtonCategoryUsage.user_id == user_id,
+        ButtonCategoryUsage.category == category
+    ).first()
+
+    if usage:
+        usage.count += 1
+    else:
+        usage = ButtonCategoryUsage(
+            user_id=user_id,
+            category=category,
+            count=1
+        )
+        db.add(usage)
+
+    db.commit()
+    return usage
+
+def recommend_category(db: Session, user_id: str):
+    categories = (
+        db.query(ButtonCategoryUsage.category, ButtonCategoryUsage.count)
+        .filter(ButtonCategoryUsage.user_id == user_id)
+        .order_by(desc(ButtonCategoryUsage.count))
+        .all()
+    )
+
+    if not categories:
+        return []
+
+    result = []
+    for i in range(min(3, len(categories))):
+        category = categories[i]
+        result.append({
+            "category": category_map.get(category.category, category.category),
+            "count": category.count
+        })
+
+    return result
+
+category_map = {
+    "에어컨": "AirRequestButton",
+    "침대": "BedRequestButton",
+    "책": "BookRequestButton",
+    "의자": "ChairRequestButton",
+    "시계": "ClockRequestButton",
+    "문": "DoorRequestButton",
+    "선풍기": "FanRequestButton",
+    "램프": "LampRequestButton",
+    "노트북": "LaptopRequestButton",
+    "머그컵": "MugRequestButton",
+    "체온계": "ThermometerRequestButton",
+    "휴지": "TissueRequestButton",
+    "창문": "WindowRequestButton",
+    "티비": "TVRequestButton",
+}
