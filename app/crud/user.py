@@ -78,6 +78,8 @@ def user_login(db: Session, data: Userlogin):
         return 0
     if user.patient == 1:
         return 1
+    elif user.patient == 2:
+        return 2
     else:
         return 0
 
