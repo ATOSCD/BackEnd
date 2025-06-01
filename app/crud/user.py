@@ -3,6 +3,9 @@ from app.models.User import User
 from app.schemas.user import *
 from werkzeug.security import check_password_hash, generate_password_hash
 
+def get_user(db: Session, user_id: str):
+    return db.query(User).filter(User.user_id == user_id).first()
+
 def create_user(db: Session, user: UserCreate):
     db_user = User(
         user_id=user.user_id, 

@@ -143,34 +143,41 @@ def read_messages(user_id: str, db: Session = Depends(get_db)):
     return get_messages(db, user_id)
 
 # 웹소켓 채팅 API
-connected_clients: List[WebSocket] = []
+connected_clients: dict = {}
 @app.websocket("/ws/chat")
 async def chat_websocket(websocket: WebSocket, db: Session = Depends(get_db)):
     user_id = websocket.query_params.get("user_id")
+    connected_clients[user_id] = websocket  
     if not user_id:
         await websocket.close(code=1008, reason="user_id is required")
         return
-    
     await websocket.accept()
-    connected_clients.append(websocket)
     try:
         while True:
             message = await websocket.receive_text()
-            save_message_to_db(db, user_id=user_id, content=message)
-            await broadcast_message({"user_id": user_id, "message": message})
+            nok = get_nok_id(db, GetNok(user_id=user_id)) 
+            if not nok:
+                await websocket.close(code=1008, reason="NOK ID not found")
+                return
+            to_whom = nok["nok_id"] 
+            save_message_to_db(db, user_id=user_id, to_whom=to_whom, content=message)
+            user = get_user(db, user_id)
+            await multicast_message([to_whom,user_id], {"user_id": user_id, "user_name": user.name, "message": message}, connected_clients)
     except WebSocketDisconnect:
-        connected_clients.remove(websocket)
+        connected_clients.pop(websocket)
 
-async def broadcast_message(data: dict):
-    for client in connected_clients:
-        try:
-            await client.send_json(data)
-        except Exception as e:
-            print(f"Failed to send message to {client}: {e}")
+async def multicast_message(to_send, data: dict, connected: dict):
+    for user_id in to_send:
+        print(f"Sending message to {user_id}: {data}")
+        ws = connected.get(user_id)
+        if ws:
+            try:
+                await ws.send_json(data)
+            except Exception as e:
+                print(f"Failed to send message to {user_id}: {e}")
 
 
 connected_recommend: dict = {}
-
 @app.websocket("/ws/chat-recommend")
 async def chat_websocket(websocket: WebSocket, db: Session = Depends(get_db)):
     await websocket.accept()
@@ -181,12 +188,12 @@ async def chat_websocket(websocket: WebSocket, db: Session = Depends(get_db)):
             text = message.get("text")
             connected_recommend[user_id] = websocket  
             recommend_text = get_recommend_texts(db, user_id, text)
-            await unicast_message(user_id, {"user_id": user_id, "text": recommend_text})
+            await unicast_message(user_id, {"user_id": user_id, "text": recommend_text}, connected_recommend)
     except WebSocketDisconnect:
         connected_recommend.pop(user_id, None)
 
-async def unicast_message(user_id, data: dict):
-    ws = connected_recommend.get(user_id)
+async def unicast_message(user_id, data: dict, connected: dict):
+    ws = connected.get(user_id)
     if ws:
         try:
             await ws.send_json(data)

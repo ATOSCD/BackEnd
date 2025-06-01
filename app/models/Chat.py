@@ -9,5 +9,6 @@ class Message(Base):
     content = Column(Text, nullable=False)
     created_at = Column(TIMESTAMP, server_default=func.now())
     is_read = Column(Boolean, default=False)
+    to_whom = Column(String(32), ForeignKey("users.user_id", ondelete="CASCADE"), nullable=True)
 
 
