@@ -102,7 +102,7 @@ def get_buttons_by_category(data: GetButtonByCategory, db: Session = Depends(get
 def button_log_add(button_log: ButtonLogAdd, db: Session = Depends(get_db)):
     return add_button_log(db, button_log)
 
-@app.post("/recommned-cateogry/", description="카테고리 사용량 증가", tags=["Recommend"])
+@app.post("/recommend-category/", description="카테고리 사용량 증가", tags=["Recommend"])
 def recommend_categories(request: GetSelectedCategory, db: Session = Depends(get_db)):
     return recommend_category(db, request.user_id)
 
@@ -168,7 +168,7 @@ async def chat_websocket(websocket: WebSocket, db: Session = Depends(get_db)):
             user = get_user(db, user_id)
             await multicast_message([to_whom,user_id], {"user_id": user_id, "user_name": user.name, "message": message}, connected_clients)
     except WebSocketDisconnect:
-        connected_clients.pop(websocket)
+        connected_clients.pop(user_id, None)
 
 async def multicast_message(to_send, data: dict, connected: dict):
     for user_id in to_send:
