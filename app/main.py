@@ -233,6 +233,34 @@ async def broadcast_message_iot(data: dict):
         except Exception as e:
             print(f"Failed to send message to IoT : {e}")
 
+# IoT 웹소켓 통신 API
+connected_IoTs_light: List[WebSocket] = []
+@app.websocket("/ws/iot-light")
+async def iot_light_websocket(websocket: WebSocket, db: Session = Depends(get_db)):
+    await websocket.accept()
+    connected_IoTs.append(websocket)
+    try:
+        while True:
+            message = await websocket.receive_json()
+            iot_id = message.get("iot_id")
+            content = message.get("message")
+
+            if not iot_id:
+                await websocket.close(code=1008, reason="iot_id is required in the message")
+                return
+
+            print(f"Received from IoT {iot_id}: {content}")
+            await broadcast_message_iot_light({"iot_id": iot_id, "message": content})
+    except WebSocketDisconnect:
+        connected_IoTs.remove(websocket)
+
+async def broadcast_message_iot_light(data: dict):
+    for client in connected_IoTs_light:
+        try:
+            await client.send_json(data)
+        except Exception as e:
+            print(f"Failed to send message to IoT : {e}")
+
 
 # FCM 푸시 알림 전송 API
 @app.post("/send-notification/", description="알림 전송 (Unity에서 호출)", tags=["Notification"])
