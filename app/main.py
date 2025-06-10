@@ -238,7 +238,7 @@ connected_IoTs_light: List[WebSocket] = []
 @app.websocket("/ws/iot-light")
 async def iot_light_websocket(websocket: WebSocket, db: Session = Depends(get_db)):
     await websocket.accept()
-    connected_IoTs.append(websocket)
+    connected_IoTs_light.append(websocket)
     try:
         while True:
             message = await websocket.receive_json()
@@ -252,7 +252,7 @@ async def iot_light_websocket(websocket: WebSocket, db: Session = Depends(get_db
             print(f"Received from IoT {iot_id}: {content}")
             await broadcast_message_iot_light({"iot_id": iot_id, "message": content})
     except WebSocketDisconnect:
-        connected_IoTs.remove(websocket)
+        connected_IoTs_light.remove(websocket)
 
 async def broadcast_message_iot_light(data: dict):
     for client in connected_IoTs_light:
@@ -276,6 +276,12 @@ async def send_emergency_notification(request: NotificationRequest, db: Session 
     send_push_warning(db, request.user_id, request.title, request.body)
     save_noti_to_db(db, request.user_id, request.title, request.body)
     return {"message": "긴급 푸시 알림 전송 요청 완료"}
+
+# 채팅 푸시 알림 전송 API
+@app.post("/send-chat-notification/", description="알림 전송 (Unity에서 호출)", tags=["Notification"])
+async def send_notification(request: NotificationRequest, db: Session = Depends(get_db)):
+    send_push_message(db, request.user_id, request.title, request.body)
+    return {"message": "채팅 푸시 알림 전송 요청 완료"}
 
 # 알림 조회 API
 @app.get("/get-notifications/{user_id}/", description="알림 조회", tags=["Notification"], response_model=List[NotificationResponse])
