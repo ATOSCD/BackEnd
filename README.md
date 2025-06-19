@@ -59,6 +59,7 @@
 3. **브라우저 접속**
    - 기본 홈페이지
       - localhost:8000
+      
    - Swagger 문서 (API 명세서)
       - localhost:8000/docs
 
