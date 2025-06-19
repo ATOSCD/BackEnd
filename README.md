@@ -57,10 +57,10 @@
    - --port: 서버 컴퓨터의 네트워크 포트
 
 3. **브라우저 접속**
-- 기본 홈페이지
-   - localhost:8000
-- Swagger 문서 (API 명세서)
-   - localhost:8000/docs
+   - 기본 홈페이지
+      - localhost:8000
+   - Swagger 문서 (API 명세서)
+      - localhost:8000/docs
 
 ## 📝 기타
 - DB 연결 정보는 .env 파일을 통해 환경변수로 관리합니다. 
